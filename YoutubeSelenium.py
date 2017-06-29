@@ -13,8 +13,10 @@ import socket
 
 class YoutubeSelenium:
 
-	FIREFOX_PATH_PROFILE = "/home/mohammed/.mozilla/firefox/yvo73q2n.default"
-	ADDRESS_PROXY_MITM = "proxy.rd.francetelecom.fr"
+	#FIREFOX_PATH_PROFILE = "/home/mohammed/.mozilla/firefox/yvo73q2n.default"
+	FIREFOX_PATH_PROFILE = "/home/spike/.mozilla/firefox/yvhqby7g.default"
+	#  ADDRESS_PROXY_MITM = "proxy.rd.francetelecom.fr"
+	ADDRESS_PROXY_MITM = ""
 	YOUTUBE_API_KEY = ""
 	PORT_PROXY_MITM = 8080
 	DURATION = 0
