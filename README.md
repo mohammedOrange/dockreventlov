@@ -7,6 +7,10 @@ Dock to measure the map streaming
 
 ## Install
 
+* libssl-dev
+
+All install process will be made with ```pip3```
+* mitmproxy
 
 ## Mplayer
 
