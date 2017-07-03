@@ -23,6 +23,17 @@ All install process will be made with ```pip3```
 * configobj
 * psutil
 
+For each browser to move in */usr/local/bin* directory
+* geckodriver
+* chromedriver
+* ...
+
+## Manual process
+
+1 Initialize the display framebuffer ``Xvfb :99 -ac &`` (we have to be root)
+2 Export the Display ``export DISPLAY=:99.0``
+3 Enable access to the DISPLAY ``xhost +``
+
 ## Mplayer
 
 ``` sh
