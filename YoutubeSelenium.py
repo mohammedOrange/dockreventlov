@@ -90,7 +90,7 @@ class YoutubeSelenium:
 
 
 			ts = time.time()
-			timestamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H:%M:%S')
+			timestamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H:%M:%S.%f')[:-4]
 			idVideo = driver.find_element_by_css_selector(".html5-video-info-panel-content > div:nth-child(1) > span:nth-child(2)").text  
 			droppedFrames = driver.find_element_by_css_selector(".html5-video-info-panel-content > div:nth-child(19) > span:nth-child(2)").text		
 			buffer = driver.find_element_by_css_selector(".html5-video-info-panel-content > div:nth-child(16) > span:nth-child(2) > span:nth-child(2)").text
