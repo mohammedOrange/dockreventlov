@@ -3,7 +3,8 @@ import json
 import time, datetime
 import sqlite3
 import socket
-from psutil import virtual_memory
+# from psutil import virtual_memory
+import psutil
 
 
 #filter : https://github.com/mitmproxy/mitmproxy/blob/master/examples/simple/filter_flows.py
@@ -48,7 +49,7 @@ def response(flow):
 	else:
 		typeObject = None
 	print('array: ',array)
-	mem = virtual_memory()
+	mem = psutil.virtual_memory()
 	memFree = mem.free/1024 #byte
 	time.sleep(1)
 #	conn.commit()
@@ -65,6 +66,8 @@ def start():
 def done():
 	print("============================ fin du script ============================")
 	print('array: ',array)
+	PROCNAME = "mitmdump"
+	for proc in psutil.process_iter():
+		if proc.name() == PROCNAME:
+			proc.kill()
 	#send data
-
-	
