@@ -9,14 +9,13 @@ import pyautogui, sys
 import json
 import os
 import socket
+import urllib3, requests
 
 
 class YoutubeSelenium:
 
-	#FIREFOX_PATH_PROFILE = "/home/mohammed/.mozilla/firefox/yvo73q2n.default"
-	FIREFOX_PATH_PROFILE = "/home/spike/.mozilla/firefox/yvhqby7g.default"
-	#  ADDRESS_PROXY_MITM = "proxy.rd.francetelecom.fr"
-	ADDRESS_PROXY_MITM = ""
+	FIREFOX_PATH_PROFILE = "/home/mohammed/.mozilla/firefox/yvo73q2n.default"
+	ADDRESS_PROXY_MITM = "proxy.rd.francetelecom.fr"
 	YOUTUBE_API_KEY = ""
 	PORT_PROXY_MITM = 8080
 	DURATION = 0
@@ -24,12 +23,14 @@ class YoutubeSelenium:
 	YOUTUBE_URL = "https://www.youtube.com/watch?v="
 	HOSTNAME = None
 	JSONARRAY = []
+	IP_SERVEUR = ""
 
 	
 	def __init__(self):
 		self.HOSTNAME = socket.gethostname()
 		self.YOUTUBE_VIDEO_URL = str(sys.argv[2])
 		duree = str(sys.argv[3])
+#		self.IP_SERVEUR = str(sys.argv[4])
 		try:
 			self.DURATION = float(duree)
 		except Exception as e:
@@ -47,9 +48,12 @@ class YoutubeSelenium:
 			self.testFirefox()
 		elif sys.argv[1] == 'chrome':
 			self.testChrome()
+		elif sys.argv[1] == 'quic':
+			self.testChromeQUIC()
 		else:
 			print('Paramètres incorrectes')
 			exit() 
+#		self.sendData()
 
 
 	def readConfigFile(self):
@@ -67,14 +71,30 @@ class YoutubeSelenium:
 	def getYoutubeStats(self,driver):
 		actualDuration = 0
 
+
+		
+
+		#test speed
+		video = driver.find_element_by_tag_name("video")
+		js = "return arguments[0].playbackRate = 1;"	#set playbackrate
+		driver.execute_script(js,video)		# to execute javascript
+
+
 		driver.find_element_by_xpath("//*[text()[contains(.,'Stats for')]]").click()
 		while actualDuration < self.DURATION:
+
+			js = "return arguments[0].duration;"	#set playbackrate
+			videoDuration = driver.execute_script(js,video)		# duration of the video
+			if actualDuration >= videoDuration:
+				break
+
+
 			ts = time.time()
 			timestamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H:%M:%S')
 			idVideo = driver.find_element_by_css_selector(".html5-video-info-panel-content > div:nth-child(1) > span:nth-child(2)").text  
-			droppedFrames = driver.find_element_by_css_selector(".html5-video-info-panel-content > div:nth-child(18) > span:nth-child(2)").text		
-			buffer = driver.find_element_by_css_selector(".html5-video-info-panel-content > div:nth-child(15) > span:nth-child(2) > span:nth-child(2)").text
-			speed = driver.find_element_by_css_selector(".html5-video-info-panel-content > div:nth-child(14) > span:nth-child(2) > span:nth-child(2)").text
+			droppedFrames = driver.find_element_by_css_selector(".html5-video-info-panel-content > div:nth-child(19) > span:nth-child(2)").text		
+			buffer = driver.find_element_by_css_selector(".html5-video-info-panel-content > div:nth-child(16) > span:nth-child(2) > span:nth-child(2)").text
+			speed = driver.find_element_by_css_selector(".html5-video-info-panel-content > div:nth-child(15) > span:nth-child(2) > span:nth-child(2)").text
 			mem = virtual_memory()
 			memFree = mem.free			#get free memory
 
@@ -82,6 +102,7 @@ class YoutubeSelenium:
 
 			js = "return arguments[0].currentTime;"
 			actualDuration = driver.execute_script(js,video)		# to execute javascript
+
 			if self.YOUTUBE_VIDEO_URL == self.YOUTUBE_URL+idVideo:
 				data = json.dumps({'time':timestamp,
 									'hostname':self.HOSTNAME,
@@ -143,6 +164,35 @@ class YoutubeSelenium:
 			driver.quit()
 
 
+	def testChromeQUIC(self):
+			options = webdriver.ChromeOptions()
+#			options.add_argument('headless')
+#			options.add_argument('disable-gpu')
+			options.add_argument('ignore-certificate-errors')
+			options.add_argument('--proxy-server='+self.ADDRESS_PROXY_MITM+':'+self.PORT_PROXY_MITM)
+			options.add_argument('--no-sandbox')
+			options.add_argument('--enable-quic')
+#			options.add_argument('window-size=1200x600')
+#			options.add_argument('--dump-dom')
+			driver = webdriver.Chrome(chrome_options=options)
+			driver.get(self.YOUTUBE_VIDEO_URL)
+			actionChains = ActionChains(driver)
+			elementToRightClick = driver.find_element_by_id("movie_player")
+			actionChains.context_click(elementToRightClick).perform()
+			self.getYoutubeStats(driver)
+			driver.quit()
+
+
+#	def sendData(self):
+#			http = urllib3.PoolManager()
+#			request = http.request('POST',self.IP_SERVEUR)
+#			request.add_header('Content-Type','application/json')
+#			rep = http.urlopen(request, json.dumps(self.JSONARRAY))
+#			print(rep)
+#			response = requests.get(self.IP_SERVEUR, self.JSONARRAY)
+#			print('ok')
+#			print(response)
 
 youtubeSel = YoutubeSelenium()
-youtubeSel.launchTest()
+youtubeSel.launchTest()
+
