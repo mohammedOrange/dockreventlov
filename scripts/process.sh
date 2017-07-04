@@ -25,13 +25,15 @@ function stop_mitm()
 
 function read_file()
 {
-    FS=';' read -r -a array <<< "$1"
+    IFS=';' read -r -a array <<< "$1"
 
-    machineid="${array[0]}"
-    video="${array[1]}"
-    browser="${array[2]}"
-    duration="${array[3]}"
+    video="${array[0]}"
+    browser="${array[1]}"
+    duration="${array[2]}"
 
+    echo $video
+    echo $browser
+    echo $duration
     # Start the MITM process
     #start_mitm
 
@@ -103,6 +105,7 @@ function run()
     echo "curl --data $data $URL/sdpweatherAPI/getvideo.php"
     curl_result=$(curl --data $data $URL/sdpweatherAPI/getvideo.php)
 
+    #echo $curl_result
     read_file $curl_result
 }
 
