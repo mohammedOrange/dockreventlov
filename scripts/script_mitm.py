@@ -83,7 +83,7 @@ def response(flow):
 
 
 def send_data(data):
-    resp = requests.post(url, data=data, allow_redirects=True) 
+    resp = requests.post(url, data=data, allow_redirects=True, verify=False) 
 
 #procédure qui s'active au démarrage programme
 def start():
