@@ -3,6 +3,7 @@ import json
 import time, datetime
 import sqlite3
 import socket
+import requests
 from psutil import virtual_memory
 
 
@@ -11,6 +12,7 @@ from psutil import virtual_memory
 data = None
 array = []
 liste = []
+url   = "https://192.168.0.2:4443/addinstant.php"
 
 def response(flow):
     ip = flow.server_conn.ip_address
@@ -80,6 +82,9 @@ def response(flow):
         #	cursor.close()
 
 
+def send_data(data):
+    resp = requests.post(url, data=data, allow_redirects=True) 
+
 #procédure qui s'active au démarrage programme
 def start():
     print("============================ début script ============================")
@@ -91,4 +96,4 @@ def done():
     #print('array: ',array)
     #print(array)
     print(json.dumps(liste))
-    #send data
+    send_data(data)
