@@ -12,7 +12,7 @@ from psutil import virtual_memory
 data = None
 array = []
 liste = []
-url   = "https://192.168.0.2:4443/addinstant.php"
+url   = "https://192.168.0.2:4443/sdpweatherAPI/addinstant.php"
 
 def response(flow):
     ip = flow.server_conn.ip_address
