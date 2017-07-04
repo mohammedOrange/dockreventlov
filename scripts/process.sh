@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # URL="https://192.168.49.49:644443"
-URL="https://192.168.0.2:4443"
+URL=" -k https://192.168.0.2:4443"
 
 function start_selenium()
 {
@@ -32,39 +32,79 @@ function read_file()
     browser="${array[2]}"
     duration="${array[3]}"
 
-    if [ ! -f "/var/cache/machineid" ]
-    then
-        echo "$machineid" > /var/cache/machineid
-    fi
-
     # Start the MITM process
-    start_mitm
+    #start_mitm
 
     # Start the Selenium process
-    start_selenium $video $browser $duration
+    #start_selenium $video $browser $duration
 
     # Wait the send process of Selenium
-    sleep 10
+    #sleep 10
 
     # Stop the MITM process
-    stop_mitm
+    #stop_mitm
 }
 
-function send_data()
+function getlocal_ipaddress()
 {
-    if [ -f "/var/cache/machineid" ]
-    then
-        MACHINEID=$(cat /var/cache/machineid)
-    else
-        MACHINEID=""
-    fi 
+    IP_address=$(ip route |awk '$1 !~/default/ { print $NF}')
+    echo $IP_address 
+}
 
-    export machineid
+function getpublic_ipaddress()
+{
+    IP_address=$(curl ipinfo.io/ip)
+    echo $IP_address
+}
+
+function get_uptime()
+{
+    uptime=$(stat -c %Z /proc/)
+    echo $uptime
+}
+
+function get_macaddress()
+{
+    interface=$(ip route show default | awk '/default/ {print $5}')
+    macaddress=$(cat /sys/class/net/$interface/address)
+    echo $macaddress
+}
+
+function get_ipdns()
+{
+    list_ipdns=$(cat /etc/resolv.conf | awk ' 
+    BEGIN { result="" } 
+    $1 ~ /nameserver/ { 
+        if ( result !="" ){ 
+            result = result ";" $2; 
+        } else { 
+            result = $2; 
+        }
+    } 
+    END { print result }')
+
+    echo $list_ipdns
+}
+
+function run()
+{
 
     data="name=$HOSTNAME"
-    data="$data&machineid=$MACHINEID"
+    data="$data&intip=$(getlocal_ipaddress)"
+    data="$data&extip=$(getpublic_ipaddress)"
+    data="$data&dns=$(get_ipdns)"
+    data="$data&uptime=$(get_uptime)"
+    data="$data&macaddress=$(get_macaddress)"
+    data="$data&version=1.0"
 
-    curl_result=$(curl -s --data $data $URL/sdpweatherAPI/getvideo.php)
+
+
+    #curl_result=$(curl -s --data $data $URL/sdpweatherAPI/getvideo.php)
+    echo "curl --data $data $URL/sdpweatherAPI/getvideo.php"
+    curl_result=$(curl --data $data $URL/sdpweatherAPI/getvideo.php)
 
     read_file $curl_result
 }
+
+# Start the Main Process
+run

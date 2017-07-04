@@ -16,14 +16,27 @@ def response(flow):
 	#local time
 	ts = time.time()
 	st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H:%M:%S')
-	print(st)
-	for key in flow.request.query:
+	# print(st)
+	#for key in flow.request.query:
 		#ajouter un filtre pour ne récuperer que les élements souhaités
-		print(key+" = "+flow.request.query.get(key))
+		# print(key+" = "+flow.request.query.get(key))
+        liste = []
 	if flow.request.query.get('mime') != None:
 		slength = flow.response.headers.get('content-length') 	# length of package (byte)
 		flength = float(slength)/1024 				# length in Kibibyte (byte/1024)
 		typeObject = flow.request.query.get('mime')
+                dict = {}
+                dict = {
+                    'Header':'VideoPlayBack',
+                    'timestamp':round(ts),
+                    'url':flow.request.headers.get('referer'),
+                    'ip':str(ip),
+                    'player':flow.request.query.get('itag'), 
+                    'type':typeObject, 
+                    'numPaquet':flow.request.query.get('rn'), 
+                    'bufferDispo':flow.request.query.get('rbuf'), 
+                    'taillePaquet':round(flength,2)     
+                        } 
 		data = json.dumps({
                     'Header':'VideoPlayBack',
                     'timestamp':round(ts),
@@ -34,8 +47,19 @@ def response(flow):
                     'numPaquet':flow.request.query.get('rn'), 
                     'bufferDispo':flow.request.query.get('rbuf'), 
                     'taillePaquet':round(flength,2)})
-		array.append(data)
+		liste.append(dict)
+                array.append(data)
 	elif flow.request.query.get('state') != None:
+                dict ={}
+                dict = {
+                    'Header':'Stats',
+                    'timestamp':round(ts),
+                    'url':flow.request.headers.get('referer'),
+                    'ip':str(ip),
+                    'player':flow.request.query.get('cplayer'), 
+                    'state':flow.request.query.get('state'), 
+                    'navigateur':flow.request.query.get('cbr')        
+                        }
 		data = json.dumps({
                     'Header':'Stats',
                     'timestamp':round(ts),
@@ -44,10 +68,11 @@ def response(flow):
                     'player':flow.request.query.get('cplayer'), 
                     'state':flow.request.query.get('state'), 
                     'navigateur':flow.request.query.get('cbr')})
+                liste.append(dict)
 		array.append(data)
 	else:
 		typeObject = None
-	print('array: ',array)
+	# print('array: ',array)
 	mem = virtual_memory()
 	memFree = mem.free/1024 #byte
 	time.sleep(1)
@@ -57,12 +82,14 @@ def response(flow):
 
 #procédure qui s'active au démarrage programme
 def start():
-	print("============================ début script ============================")
+	#print("============================ début script ============================")
 
 
 
 #procédure qui s'active lorsque l'on met fin au programme
 def done():
-	print("============================ fin du script ============================")
-	print('array: ',array)
+	#print("============================ fin du script ============================")
+	#print('array: ',array)
+	#print(array)
+        print(json.dump(liste))
 	#send data
