@@ -102,8 +102,8 @@ function run()
 
 
     #curl_result=$(curl -s --data $data $URL/sdpweatherAPI/getvideo.php)
-    echo "curl --data $data $URL/sdpweatherAPI/getvideo.php"
-    curl_result=$(curl --data $data $URL/sdpweatherAPI/getvideo.php)
+    echo "curl --data $data $URL/sdpweatherapi/getvideo.php"
+    curl_result=$(curl --data $data $URL/sdpweatherapi/getvideo.php)
 
     #echo $curl_result
     read_file $curl_result
