@@ -20,7 +20,7 @@ def response(flow):
 	#for key in flow.request.query:
 		#ajouter un filtre pour ne récuperer que les élements souhaités
 		# print(key+" = "+flow.request.query.get(key))
-        liste = []
+    liste = []
 	if flow.request.query.get('mime') != None:
 		slength = flow.response.headers.get('content-length') 	# length of package (byte)
 		flength = float(slength)/1024 				# length in Kibibyte (byte/1024)
