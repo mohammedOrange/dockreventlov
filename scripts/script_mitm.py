@@ -82,12 +82,12 @@ def response(flow):
 
 #procédure qui s'active au démarrage programme
 def start():
-    #print("============================ début script ============================")
+    print("============================ début script ============================")
 
 
 #procédure qui s'active lorsque l'on met fin au programme
 def done():
-    #print("============================ fin du script ============================")
+    print("============================ fin du script ============================")
     #print('array: ',array)
     #print(array)
     print(json.dump(liste))
