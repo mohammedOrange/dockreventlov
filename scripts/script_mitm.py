@@ -95,5 +95,5 @@ def done():
     print("============================ fin du script ============================")
     #print('array: ',array)
     #print(array)
-    print(json.dumps(liste))
-    send_data(data)
+    #print(json.dumps(liste))
+    send_data(json.dumps(liste))
