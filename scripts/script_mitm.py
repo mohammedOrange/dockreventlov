@@ -7,6 +7,8 @@ import requests
 from psutil import virtual_memory
 
 
+#https://github.com/mitmproxy/mitmproxy/blob/811b72cd304a8c75efaf706fd57cfbe9494cd3d9/examples/har_extractor.py
+
 #filter : https://github.com/mitmproxy/mitmproxy/blob/master/examples/simple/filter_flows.py
 
 data        = None
@@ -15,6 +17,13 @@ liste       = []
 url         = "https://192.168.0.2:4443/sdpweatherapi/addinstant.php"
 starttime   = time.time()
 hostname    = socket.gethostname()
+
+def request(flow):
+    #  print(flow.request.url)
+    #  print(flow.request.headers.get("Content-Type", ""))
+    print(flow.request.headers.get('Referer'))
+    #  print(type(flow.request.query))
+    #  print(flow.request.pretty_url)
 
 def response(flow):
     ip = flow.server_conn.ip_address
@@ -31,34 +40,34 @@ def response(flow):
         typeObject = flow.request.query.get('mime')
         dict = {}
         dict = {
-            'name':         hostname,
-            'Header':       'VideoPlayBack',
-            'starttime':    round(starttime),
-            'timestamp':    round(time.time()),
-            'url':          flow.request.headers.get('referer'),
-            'ip':           str(ip),
-            'player':       flow.request.query.get('itag'), 
-            'type':         typeObject, 
-            'numPaquet':    flow.request.query.get('rn'), 
-            'bufferDispo':  flow.request.query.get('rbuf'), 
-            'taillePaquet': round(flength,2)     
-        } 
-        print("insert mime..")
+                'name':         hostname,
+                'Header':       'VideoPlayBack',
+                'starttime':    round(starttime),
+                'timestamp':    round(time.time()),
+                'url':          flow.request.headers.get('referer'),
+                'ip':           str(ip),
+                'player':       flow.request.query.get('itag'), 
+                'type':         typeObject, 
+                'numPaquet':    flow.request.query.get('rn'), 
+                'bufferDispo':  flow.request.query.get('rbuf'), 
+                'taillePaquet': round(flength,2)     
+                } 
+        #  print("insert mime..")
         liste.append(dict)
     elif flow.request.query.get('state') != None:
         dict ={}
         dict = {
-            'name':         hostname,
-            'Header':       'Stats',
-            'starttime':    round(starttime),
-            'timestamp':    round(time.time()),
-            'url':          flow.request.headers.get('referer'),
-            'ip':           str(ip),
-            'player':       flow.request.query.get('cplayer'), 
-            'state':        flow.request.query.get('state'), 
-            'navigateur':   flow.request.query.get('cbr')        
-        }
-        print("insert state..")
+                'name':         hostname,
+                'Header':       'Stats',
+                'starttime':    round(starttime),
+                'timestamp':    round(time.time()),
+                'url':          flow.request.headers.get('referer'),
+                'ip':           str(ip),
+                'player':       flow.request.query.get('cplayer'), 
+                'state':        flow.request.query.get('state'), 
+                'navigateur':   flow.request.query.get('cbr')        
+                }
+        #  print("insert state..")
         liste.append(dict)
     else:
         typeObject = None
@@ -71,6 +80,7 @@ def response(flow):
 
 
 def send_data(data):
+    #  print(data)
     requests.packages.urllib3.disable_warnings()
     resp = requests.post(url, data=data, allow_redirects=True, verify=False) 
     print(resp.text)
@@ -85,7 +95,7 @@ def done():
     print("============================ fin du script ============================")
     #print('array: ',array)
     #print(array)
-    #print(json.dumps(liste))
+    #  print(json.dumps(liste))
     while True:
         input("Press Enter to continue...")
         send_data(json.dumps(liste))

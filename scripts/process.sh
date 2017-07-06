@@ -88,6 +88,12 @@ function get_ipdns()
     echo $list_ipdns
 }
 
+function get_timestamp()
+{
+    timestamp=$(date +%s)
+    echo $timestamp
+}
+
 function run()
 {
 
@@ -95,6 +101,7 @@ function run()
     data="$data&intip=$(getlocal_ipaddress)"
     data="$data&extip=$(getpublic_ipaddress)"
     data="$data&dns=$(get_ipdns)"
+    data="$data&timestamp=$(get_timestamp)"
     data="$data&uptime=$(get_uptime)"
     data="$data&macaddress=$(get_macaddress)"
     data="$data&version=1.0"
@@ -105,8 +112,8 @@ function run()
     echo "curl --data $data $URL/sdpweatherapi/getvideo.php"
     curl_result=$(curl --data $data $URL/sdpweatherapi/getvideo.php)
 
-    echo $curl_result
-    # read_file $curl_result
+    # echo $curl_result
+    read_file $curl_result
 }
 
 # Start the Main Process
