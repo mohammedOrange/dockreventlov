@@ -9,16 +9,18 @@ from psutil import virtual_memory
 
 #filter : https://github.com/mitmproxy/mitmproxy/blob/master/examples/simple/filter_flows.py
 
-data = None
-array = []
-liste = []
-url   = "https://192.168.0.2:4443/sdpweatherAPI/addinstant.php"
+data        = None
+array       = []
+liste       = []
+url         = "https://192.168.0.2:4443/sdpweatherapi/addinstant.php"
+starttime   = time.time()
+hostname    = socket.gethostname()
 
 def response(flow):
     ip = flow.server_conn.ip_address
     #local time
-    ts = time.time()
-    st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H:%M:%S')
+    #  ts = time.time()
+    #  st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H:%M:%S')
     # print(st)
     #for key in flow.request.query:
         #ajouter un filtre pour ne récuperer que les élements souhaités
@@ -29,49 +31,35 @@ def response(flow):
         typeObject = flow.request.query.get('mime')
         dict = {}
         dict = {
-            'Header':'VideoPlayBack',
-            'timestamp':round(ts),
-            'url':flow.request.headers.get('referer'),
-            'ip':str(ip),
-            'player':flow.request.query.get('itag'), 
-            'type':typeObject, 
-            'numPaquet':flow.request.query.get('rn'), 
-            'bufferDispo':flow.request.query.get('rbuf'), 
-            'taillePaquet':round(flength,2)     
+            'name':         hostname,
+            'Header':       'VideoPlayBack',
+            'starttime':    round(starttime),
+            'timestamp':    round(time.time()),
+            'url':          flow.request.headers.get('referer'),
+            'ip':           str(ip),
+            'player':       flow.request.query.get('itag'), 
+            'type':         typeObject, 
+            'numPaquet':    flow.request.query.get('rn'), 
+            'bufferDispo':  flow.request.query.get('rbuf'), 
+            'taillePaquet': round(flength,2)     
         } 
-        data = json.dumps({
-            'Header':'VideoPlayBack',
-            'timestamp':round(ts),
-            'url':flow.request.headers.get('referer'),
-            'ip':str(ip),
-            'player':flow.request.query.get('itag'), 
-            'type':typeObject, 
-            'numPaquet':flow.request.query.get('rn'), 
-            'bufferDispo':flow.request.query.get('rbuf'), 
-            'taillePaquet':round(flength,2)})
+        print("insert mime..")
         liste.append(dict)
-        array.append(data)
     elif flow.request.query.get('state') != None:
         dict ={}
         dict = {
-            'Header':'Stats',
-            'timestamp':round(ts),
-            'url':flow.request.headers.get('referer'),
-            'ip':str(ip),
-            'player':flow.request.query.get('cplayer'), 
-            'state':flow.request.query.get('state'), 
-            'navigateur':flow.request.query.get('cbr')        
+            'name':         hostname,
+            'Header':       'Stats',
+            'starttime':    round(starttime),
+            'timestamp':    round(time.time()),
+            'url':          flow.request.headers.get('referer'),
+            'ip':           str(ip),
+            'player':       flow.request.query.get('cplayer'), 
+            'state':        flow.request.query.get('state'), 
+            'navigateur':   flow.request.query.get('cbr')        
         }
-        data = json.dumps({
-            'Header':'Stats',
-            'timestamp':round(ts),
-            'url':flow.request.headers.get('referer'),
-            'ip':str(ip),
-            'player':flow.request.query.get('cplayer'), 
-            'state':flow.request.query.get('state'), 
-            'navigateur':flow.request.query.get('cbr')})
+        print("insert state..")
         liste.append(dict)
-        array.append(data)
     else:
         typeObject = None
         # print('array: ',array)
@@ -83,7 +71,9 @@ def response(flow):
 
 
 def send_data(data):
+    requests.packages.urllib3.disable_warnings()
     resp = requests.post(url, data=data, allow_redirects=True, verify=False) 
+    print(resp.text)
 
 #procédure qui s'active au démarrage programme
 def start():
@@ -96,4 +86,7 @@ def done():
     #print('array: ',array)
     #print(array)
     #print(json.dumps(liste))
-    send_data(json.dumps(liste))
+    while True:
+        input("Press Enter to continue...")
+        send_data(json.dumps(liste))
+
