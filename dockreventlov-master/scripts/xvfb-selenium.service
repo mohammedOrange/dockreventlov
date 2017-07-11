@@ -1,0 +1,9 @@
+[Unit]
+Description=Run Xvfb :99 -ac in background
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/Xvfb :99 -ac
+
+[Install]
+WantedBy=multi-user.target
